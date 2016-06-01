@@ -17,12 +17,16 @@ $(function(){
         $("#thirdQuery").append(data);
     }, "html")
 */
-    $("#login").click(function(){
-      $.post("/login", {username: $("#username").val(), password: $("#password").val()})
+    $("#submit").click(function(){
+      $.post("/insert", {
+        username: $("#username").val(), 
+        password: $("#password").val(),
+        
+        })
         .done(function(data){
           if(data){
             console.log(data)
-            $("#result").text("Logged in as: "+data.username);
+            $("#result").text("Logged in as: " + data.username);
           } else {
             console.log("Failed to log in!")
             $("#result").text("Username / pasword combination invalid!");

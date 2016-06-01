@@ -52,10 +52,11 @@ func main() {
 		}
 	})
 
+	// trips WHERE Date >= CURRENT_DATE - interger '3' AND Date < CURRENT_DATE
 	router.GET("/query1", func(c *gin.Context) {
 		table := "<table class='table'><thead><tr>"
 		// put your query here
-		rows, err := db.Query("SELECT SUM(length) FROM song WHERE albumId IN (SELECT albumId FROM album WHERE cost < '10.00');") // <--- EDIT THIS LINE
+		rows, err := db.Query("SELECT ID, Date, Destination, Origin FROM trips WHERE id = 1;") // <--- EDIT THIS LINE
 		if err != nil {
 			// careful about returning errors to the user!
 			c.AbortWithError(http.StatusInternalServerError, err)
@@ -73,14 +74,17 @@ func main() {
 		// once you've added all the columns in, close the header
 		table += "</thead><tbody>"
 		// declare all your RETURNED columns here  
-		var length int  
+		var ID int  
+		var date string
+		var destination	string
+		var origin string 
 		  // <--- EDIT THESE LINES //<--- ^^^^
 		for rows.Next() {
 			// assign each of them, in order, to the parameters of rows.Scan.
 			// preface each variable with &
-			rows.Scan(&length) // <--- EDIT THIS LINE
+			rows.Scan(&ID, &date, &destination, &origin) // <--- EDIT THIS LINE
 			// can't combine ints and strings in Go. Use strconv.Itoa(int) instead
-			table += "<tr><td>" + strconv.Itoa(length) + "</td></tr>" // <--- EDIT THIS LINE
+			table += "<tr><td>" + strconv.Itoa(ID) + "</td><td>" + date  + "</td><td>" + destination + "</td><td>" + origin + "</td></tr>" // <--- EDIT THIS LINE
 		}
 		// finally, close out the body and table
 		table += "</tbody></table>"
@@ -157,7 +161,7 @@ func main() {
 		c.Data(http.StatusOK, "text/html", []byte(table))
 	})
 
-	router.POST("/login", func(c *gin.Context) {
+	router.POST("/insert", func(c *gin.Context) {
 		// this is meant for SQL injection examples ONLY.
 		// Don't copy this for use in an actual environment, even if you do stop SQL injection
 		username := c.PostForm("username")

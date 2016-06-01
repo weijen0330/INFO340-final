@@ -35,8 +35,8 @@ h1, h3, #results {
 h3 {
     padding-bottom: 10px;
 }
+
 .content {
-    background-color: #EAFDF8;
     min-height: 100px;
 }
 .content ul {
