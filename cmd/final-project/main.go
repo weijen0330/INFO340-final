@@ -18,7 +18,13 @@ var (
 	// this is the pointer to the database we will be working with
 	// this is a "global" variable (sorta kinda, but you can use it as such)
 	db *sql.DB
+
 )
+type Trip struct {
+    Id int
+    Destination string
+    Origin string
+}
 
 func main() {
 	port := os.Getenv("PORT")
@@ -52,11 +58,10 @@ func main() {
 		}
 	})
 
-	// trips WHERE Date >= CURRENT_DATE - interger '3' AND Date < CURRENT_DATE
 	router.GET("/query1", func(c *gin.Context) {
 		table := "<table class='table'><thead><tr>"
 		// put your query here
-		rows, err := db.Query("SELECT ID, Date, Destination, Origin FROM trips WHERE id = 1;") // <--- EDIT THIS LINE
+		rows, err := db.Query("SELECT * from recentTrips;") // <--- EDIT THIS LINE
 		if err != nil {
 			// careful about returning errors to the user!
 			c.AbortWithError(http.StatusInternalServerError, err)
@@ -78,96 +83,40 @@ func main() {
 		var date string
 		var destination	string
 		var origin string 
+
+
 		  // <--- EDIT THESE LINES //<--- ^^^^
 		for rows.Next() {
 			// assign each of them, in order, to the parameters of rows.Scan.
 			// preface each variable with &
 			rows.Scan(&ID, &date, &destination, &origin) // <--- EDIT THIS LINE
 			// can't combine ints and strings in Go. Use strconv.Itoa(int) instead
-			table += "<tr><td>" + strconv.Itoa(ID) + "</td><td>" + date  + "</td><td>" + destination + "</td><td>" + origin + "</td></tr>" // <--- EDIT THIS LINE
+			table += "<tr><td>" + strconv.Itoa(ID) + "</td><td>" + date[:10]+ "</td><td>" + destination + "</td><td>" + origin + "</td></tr>" // <--- EDIT THIS LINE
 		}
 		// finally, close out the body and table
-		table += "</tbody></table>"
-		c.Data(http.StatusOK, "text/html", []byte(table))
-	})
-
-	router.GET("/query2", func(c *gin.Context) {
-		table := "<table class='table'><thead><tr>"
-		// put your query here
-		rows, err := db.Query("SELECT MAX(length) FROM song JOIN album ON song.albumId = album.albumId WHERE genre = 'Pop';") // <--- EDIT THIS LINE
-		if err != nil {
-			// careful about returning errors to the user!
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-		// foreach loop over rows.Columns, using value
-		cols, _ := rows.Columns()
-		if len(cols) == 0 {
-			c.AbortWithStatus(http.StatusNoContent)
-			return
-		}
-		for _, value := range cols {
-			table += "<th class='text-center'>" + value + "</th>"
-		}
-		// once you've added all the columns in, close the header
-		table += "</thead><tbody>"
-		// columns
-		var time int
-
-		for rows.Next() {
-
-			rows.Scan(&time) 
-			table += "<tr><td>" + strconv.Itoa(time) + "</td></tr>" 
-		}
-		// finally, close out the body and table
-		table += "</tbody></table>"
-		c.Data(http.StatusOK, "text/html", []byte(table))
-	}) 
-
-	router.GET("/query3", func(c *gin.Context) {
-		table := "<table class='table'><thead><tr>"
-		// put your query here
-		rows, err := db.Query("SELECT firstName, lastName, album.title, cost FROM artist JOIN album ON artist.artistId = album.artistId WHERE artist.age > 25;") // <--- EDIT THIS LINE
-		if err != nil {
-			// careful about returning errors to the user!
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-		// foreach loop over rows.Columns, using value
-		cols, _ := rows.Columns()
-		if len(cols) == 0 {
-			c.AbortWithStatus(http.StatusNoContent)
-			return
-		}
-		for _, value := range cols {
-			table += "<th class='text-center'>" + value + "</th>"
-		}
-		// once you've added all the columns in, close the header
-		table += "</thead><tbody>"
-		// columns
-		var firstName string
-		var lastName string
-		var title string
-		var cost string
-
-		for rows.Next() {
-			// rows.Scan() // put columns here prefaced with &
-			rows.Scan(&firstName, &lastName, &title, &cost)
-			table += "<tr><td>" + firstName + "</td><td>" + lastName + "</td><td>" + title + "</td><td>" + 
-			cost + "</td></tr>" // <--- EDIT THIS LINE
-		}
-		// finally, close out the body and table
-		table += "</tbody></table>"
+		/*table += "</tbody></table>" 
+		var recent []Trip
+        for rows.Next() {
+        var trip Trip
+            err = rows.Scan(&trip.Id, &trip.Destination, &trip.Origin)
+            if err != nil {
+        		return
+          	}        
+         	recent = append(recent, trip)
+        } */
 		c.Data(http.StatusOK, "text/html", []byte(table))
 	})
 
 	router.POST("/insert", func(c *gin.Context) {
 		// this is meant for SQL injection examples ONLY.
 		// Don't copy this for use in an actual environment, even if you do stop SQL injection
-		username := c.PostForm("username")
-		password := c.PostForm("password")
+		
+		firstName := c.PostForm("firstName")
+		middleName := c.PostForm("middleName")
+		lastName := c.PostForm("lastName")
+		description := c.PostForm("description") 
 
-		rows, err := db.Query("SELECT usr.name FROM usr WHERE usr.name = '" + username + "' AND usr.password = '" + password + "';")
+		rows, err := db.Query("SELECT addNewCargo($1, $2, $3, $4)", firstName, middleName, lastName, description)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -176,26 +125,22 @@ func main() {
 		if len(cols) == 0 {
 			c.AbortWithStatus(http.StatusNoContent)
 			return
-		}
 
+		}
 		rowCount := 0
 		var resultUser string
 		for rows.Next() {
 			rows.Scan(&resultUser)
 			rowCount++
-		}
-		// quick way to check if the user logged in properly
-		if rowCount == 0 {
-			c.AbortWithStatus(http.StatusNoContent)
-			return
-		}
+		} 
+
 		// instead of HTML, we are going to return a JSON file
-		c.JSON(http.StatusOK, gin.H{"username": resultUser})
+		c.JSON(http.StatusOK, gin.H{"firstName": firstName})
 	})
 
-	// NO code should go after this line. it won't ever reach that point
+	// NO code should go after this line. it won't ever reach that point 
 	router.Run(":" + port)
-}
+} 
 
 /*
 Example of processing a GET request

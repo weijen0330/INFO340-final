@@ -4,11 +4,27 @@ $(function(){
             $("#results").prepend("<div class='alert alert-danger'><strong>Error!</strong> "+ data.message +"</div>");
         }
     }, "json")
-    /*
+    
     $.get("/query1", function(data){
         $("#firstQuery").append(data);
-    }, "html")
+    }, "html"),
 
+    $("#submit").click(function() {
+        $.post("/insert", 
+        { 
+            firstName: $("#firstName").val(), 
+            middleName: $("#middleName").val(),
+            lastName: $("#lastName").val(),
+            description: $("#description").val()
+        })
+        .done(function(data){
+          if(data){
+            console.log(data)
+            } else {
+            console.log("Failed grab data!")
+            }          
+        });
+    });/*
     $.get("/query2", function(data){
         $("#secondQuery").append(data);
     }, "html")
@@ -16,22 +32,21 @@ $(function(){
     $.get("/query3", function(data){
         $("#thirdQuery").append(data);
     }, "html")
-*/
+
     $("#submit").click(function(){
       $.post("/insert", {
-        username: $("#username").val(), 
-        password: $("#password").val(),
-        
+        firstName: $("#firstName").val(), 
+        middleName: $("#middleName").val()
+        lastName: $("#lastName").val(),
+        description: $("#description").val()
         })
         .done(function(data){
           if(data){
             console.log(data)
-            $("#result").text("Logged in as: " + data.username);
           } else {
-            console.log("Failed to log in!")
-            $("#result").text("Username / pasword combination invalid!");
+            console.log("Failed grab data!")
           }
         });
-    });
+    }); */
 
 })

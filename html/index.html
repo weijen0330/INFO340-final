@@ -11,31 +11,41 @@
     <body>
         <header>
             <h1>Track Your Medical Drone</h1>
-            <div class="form-group">
-                <label for="lookup"></label>
-                <input type="text" class="form-control" id="lookup" autofocus>
-                <button id="submit" type="button" class="btn btn-primary">Submit</button>
-            </div>
         </header>
         <div class="content" id="results">
+            <input type="search" class="form-control" id="searchbox" placeholder="Enter a destination or origin" autofocus>
+            <!-- 
+            <input class="radio-inline" type="radio" name="location" value="village" checked> From Village<br>
+            <input class="radio-inline" type="radio" name="location" value="female">From Health Clinic<br> -->
+            <button id="search" type="button" class="btn btn-primary">Search</button><br>
             <div class="row">
-                <div class="col-md-4" id="firstQuery">
+                <div id="firstQuery">
                     <!-- replace the content in the p block with your question -->
-                    <p>
-                       Current Trips from the past three days:
-                    </p>
+                    <h3>Current trips from the past seven days: </h3>
+                    <!-- 
+                    <table>
+                        {{ range .recent }}
+                      <tr>
+                        <td>{{ .Id }}</td><td>{{ .Origin }}</td>
+                      </tr>
+                      {{ end }}
+                    </table>
+                    -->
                 </div>
-                <div class="col-md-4" id="secondQuery">
-                    <p>
-                       2. How long is the longest pop song in the database? 
-                    </p>
-                </div>
-                <div class="col-md-4" id="thirdQuery">
-                    <p>
-                        3. What are the costs of the albums produced by artists who are older than 25? 
-                    </p>
+                <h3>Request a new cargo: </h3>
+                <div class="form-group">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" class="form-control" id="firstName" required autofocus>
+                    <label for="middleName">Middle Name:</label>
+                    <input type="text" class="form-control" id="middleName">
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" class="form-control" id="lastName" required>
+                    <label for="description">Cargo Description:</label>
+                    <input type="text" class="form-control" id="description" required>
+                    <button id="submit" type="button" class="btn btn-primary">Submit</button>
                 </div>
             </div>
+
         </div>
     </body>
 </html>
