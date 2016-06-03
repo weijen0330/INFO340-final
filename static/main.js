@@ -20,6 +20,11 @@ $(function(){
         .done(function(data){
           if(data){
             console.log(data)
+            alert("Cargo request submitted!")
+            $("#firstName").val(''); 
+            $("#middleName").val('');
+            $("#lastName").val('');
+            $("#description").val('');
             } else {
             console.log("Failed grab data!")
             }          
