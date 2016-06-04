@@ -1,13 +1,13 @@
-$(function(){
+$(function() {
     $.get("/ping", function(data){
         if(data.error == "true"){
             $("#results").prepend("<div class='alert alert-danger'><strong>Error!</strong> "+ data.message +"</div>");
         }
-    }, "json")
+    }, "json"),
     
     $.get("/query1", function(data){
         $("#firstQuery").append(data);
-    }, "html"),
+    }, "html")
 
     $("#submit").click(function() {
         $.post("/insert", 
@@ -29,7 +29,12 @@ $(function(){
             console.log("Failed grab data!")
             }          
         });
-    });/*
+    });
+
+    $("#search").click(function() {
+
+
+    }),/*
     $.get("/query2", function(data){
         $("#secondQuery").append(data);
     }, "html")
