@@ -15,16 +15,10 @@ import (
 )
 
 var (
-	// this is the pointer to the database we will be working with
-	// this is a "global" variable (sorta kinda, but you can use it as such)
+	// The pointer to the database 
 	db *sql.DB
 
 )
-type Trip struct {
-    Id int
-    Destination string
-    Origin string
-}
 
 func main() {
 	port := os.Getenv("PORT")
@@ -33,8 +27,8 @@ func main() {
 	}
 
 	var errd error
-	// here we want to open a connection to the database using an environemnt variable.
-	// This isn't the best technique, but it is the simplest one for heroku
+	// Open a connection to the database using an environemnt variable.
+	// Not the best technique, but the simplest one for heroku
 	db, errd = sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if errd != nil {
 		log.Fatalf("Error opening database: %q", errd)
@@ -61,7 +55,7 @@ func main() {
 	router.GET("/query1", func(c *gin.Context) {
 		table := "<table class='table'><thead><tr>"
 		// put your query here
-		rows, err := db.Query("SELECT * from recentTrips;") // <--- EDIT THIS LINE
+		rows, err := db.Query("SELECT * from recentTrips;")
 		if err != nil {
 			// careful about returning errors to the user!
 			c.AbortWithError(http.StatusInternalServerError, err)
@@ -76,40 +70,62 @@ func main() {
 		for _, value := range cols {
 			table += "<th class='text-center'>" + value + "</th>"
 		}
-		// once you've added all the columns in, close the header
+		// once added all the columns in, close the header
 		table += "</thead><tbody>"
-		// declare all your RETURNED columns here  
+		// declare all returned columns here  
 		var ID int  
 		var date string
 		var destination	string
 		var origin string 
 
-
-		  // <--- EDIT THESE LINES //<--- ^^^^
 		for rows.Next() {
 			// assign each of them, in order, to the parameters of rows.Scan.
 			// preface each variable with &
-			rows.Scan(&ID, &date, &destination, &origin) // <--- EDIT THIS LINE
+			rows.Scan(&ID, &date, &destination, &origin) 
 			// can't combine ints and strings in Go. Use strconv.Itoa(int) instead
-			table += "<tr><td>" + strconv.Itoa(ID) + "</td><td>" + date[:10]+ "</td><td>" + destination + "</td><td>" + origin + "</td></tr>" // <--- EDIT THIS LINE
+			table += "<tr><td>" + strconv.Itoa(ID) + "</td><td>" + date[:10]+ "</td><td>" + destination + "</td><td>" + origin + "</td></tr>"
 		}
-		// finally, close out the body and table
-		/*table += "</tbody></table>" 
-		var recent []Trip
-        for rows.Next() {
-        var trip Trip
-            err = rows.Scan(&trip.Id, &trip.Destination, &trip.Origin)
-            if err != nil {
-        		return
-          	}        
-         	recent = append(recent, trip)
-        } */
+		c.Data(http.StatusOK, "text/html", []byte(table))
+	})
+
+	router.POST("/update", func(c *gin.Context) {
+		table := "<table class='table'><thead><tr>"
+
+		searchBox := c.PostForm("searchBox")
+		likeString := searchBox + "%"
+		// "SELECT * FROM recentTrips WHERE  LIKE $2", input, likeString
+		rows, err := db.Query("SELECT * FROM recentTrips WHERE destination LIKE $1;", likeString)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		cols, _ := rows.Columns()
+		if len(cols) == 0 {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		for _, value := range cols {
+			table += "<th class='text-center'>" + value + "</th>"
+		}
+		// once added all the columns in, close the header
+		table += "</thead><tbody>"
+		// declare all returned columns here  
+		var ID int  
+		var date string
+		var destination	string
+		var origin string 
+
+		for rows.Next() {
+			// assign each of them, in order, to the parameters of rows.Scan.
+			// preface each variable with &
+			rows.Scan(&ID, &date, &destination, &origin) 
+			// can't combine ints and strings in Go. Use strconv.Itoa(int) instead
+			table += "<tr><td>" + strconv.Itoa(ID) + "</td><td>" + date[:10]+ "</td><td>" + destination + "</td><td>" + origin + "</td></tr>"
+		}
 		c.Data(http.StatusOK, "text/html", []byte(table))
 	})
 
 	router.POST("/insert", func(c *gin.Context) {
-		// this is meant for SQL injection examples ONLY.
-		// Don't copy this for use in an actual environment, even if you do stop SQL injection
 		
 		firstName := c.PostForm("firstName")
 		middleName := c.PostForm("middleName")
@@ -125,36 +141,13 @@ func main() {
 		if len(cols) == 0 {
 			c.AbortWithStatus(http.StatusNoContent)
 			return
-
 		}
-		rowCount := 0
 		var resultUser string
 		for rows.Next() {
 			rows.Scan(&resultUser)
-			rowCount++
 		} 
-
-		// instead of HTML, we are going to return a JSON file
 		c.JSON(http.StatusOK, gin.H{"firstName": firstName})
 	})
-
-	// NO code should go after this line. it won't ever reach that point 
+	// NO code should go after this line. It won't ever reach that point.
 	router.Run(":" + port)
 } 
-
-/*
-Example of processing a GET request
-
-// this will run whenever someone goes to last-first-lab7.herokuapp.com/EXAMPLE
-router.GET("/EXAMPLE", func(c *gin.Context) {
-    // process stuff
-    // run queries
-    // do math
-    //decide what to return
-    c.JSON(http.StatusOK, gin.H{
-        "key": "value"
-        }) // this returns a JSON file to the requestor
-    // look at https://godoc.org/github.com/gin-gonic/gin to find other return types. JSON will be the most useful for this
-})
-
-*/

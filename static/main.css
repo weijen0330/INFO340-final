@@ -12,11 +12,6 @@ input  {
     display: block;
 }
 
-button {
-    margin-top: 1em;
-    float: right;
-    display: inline;
-}
 
 h1 {
     color: #539987;
@@ -32,6 +27,7 @@ h1, h3, #results {
 }
 
 h3 {
+    margin-top: 2em;
     margin-left: 2em;
     padding-bottom: 10px;
 }
@@ -43,8 +39,15 @@ h3 {
     padding-top: 25px;
 }
 button {
-  display: block;
-  margin-right: 20%;
+    float: right;
+    display: inline;
+    margin-right: 20%;
+    margin-bottom: 1em;
+}
+
+#reset {
+    margin-left: 60%;
+    margin-bottom: 1em;
 }
 
 .form-control {
